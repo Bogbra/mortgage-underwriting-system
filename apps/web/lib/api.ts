@@ -24,6 +24,27 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * FastAPI error bodies are JSON — `{"detail": "..."}` for a raised
+ * HTTPException, or `{"detail": [{"msg": "...", ...}, ...]}` for a Pydantic
+ * validation error (422). Extract plain text from either shape so callers
+ * never have to render a raw JSON blob as the error message.
+ */
+function extractErrorMessage(rawBody: string, fallback: string): string {
+  if (!rawBody) return fallback;
+  try {
+    const parsed = JSON.parse(rawBody);
+    const detail = parsed?.detail;
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail)) {
+      return detail.map((d) => (typeof d?.msg === "string" ? d.msg : JSON.stringify(d))).join("; ");
+    }
+  } catch {
+    // Not JSON — fall through and show the raw body.
+  }
+  return rawBody;
+}
+
 async function request<T>(
   path: string,
   init: RequestInit & { token?: string } = {},
@@ -41,7 +62,7 @@ async function request<T>(
 
   if (!response.ok) {
     const body = await response.text();
-    throw new ApiError(response.status, body || response.statusText);
+    throw new ApiError(response.status, extractErrorMessage(body, response.statusText));
   }
   if (response.status === 202 || response.status === 204) {
     return response.json().catch(() => undefined) as Promise<T>;
