@@ -35,6 +35,11 @@ class CaseRecord(Base):
     # underwriting the loan); never sent to the LLM, which only ever sees
     # `sanitized_data` (see docs/adr/0004). Distinct concerns, distinct views.
     applicant_name: Mapped[str] = mapped_column(String, default="")
+    # Indexed so a new submission can cheaply check for an existing case with
+    # the same SSN — same legitimacy as `applicant_name` above (retained for
+    # staff/compliance, never sent to the LLM).
+    ssn: Mapped[str] = mapped_column(String, index=True, default="")
+    possible_duplicate_of: Mapped[str | None] = mapped_column(String, nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     state_json: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))

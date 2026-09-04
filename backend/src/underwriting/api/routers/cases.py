@@ -78,10 +78,24 @@ def submit_case(
         raise HTTPException(status.HTTP_409_CONFLICT, f"Case {payload.case_id} already exists.")
 
     applicant = ApplicantData.model_validate(payload.model_dump())
+
+    # Same person, a different case_id, isn't rejected — re-applications are
+    # legitimate (e.g. after a denial with corrected information). It's
+    # flagged for a reviewer to see rather than silently allowed through.
+    # `.first()`, not `.scalar_one_or_none()`: a third submission with the
+    # same SSN would otherwise raise MultipleResultsFound.
+    duplicate = db.execute(
+        select(CaseRecord.case_id)
+        .where(CaseRecord.ssn == applicant.ssn)
+        .order_by(CaseRecord.created_at.desc())
+    ).scalars().first()
+
     record = CaseRecord(
         case_id=applicant.case_id,
         status=CaseStatus.RECEIVED.value,
         applicant_name=applicant.name,
+        ssn=applicant.ssn,
+        possible_duplicate_of=duplicate,
         state_json={},
     )
     db.add(record)
@@ -93,9 +107,21 @@ def submit_case(
         detail="Case received.",
         actor="caller",
     )
+    if duplicate:
+        record_audit_event(
+            db,
+            case_id=applicant.case_id,
+            event_type="possible_duplicate_detected",
+            detail=f"Same SSN as existing case {duplicate}.",
+            actor="system",
+        )
 
     background_tasks.add_task(_execute_case, applicant.case_id, applicant)
-    return CaseAcceptedResponse(case_id=applicant.case_id, status=CaseStatus.RECEIVED.value)
+    return CaseAcceptedResponse(
+        case_id=applicant.case_id,
+        status=CaseStatus.RECEIVED.value,
+        possible_duplicate_of=duplicate,
+    )
 
 
 @router.get("", response_model=list[CaseSummary])
@@ -118,6 +144,7 @@ def list_cases(
             final_decision=r.final_decision,
             human_review_required=r.human_review_required,
             human_review_completed=r.human_review_completed,
+            possible_duplicate_of=r.possible_duplicate_of,
             created_at=r.created_at,
             updated_at=r.updated_at,
         )
@@ -141,6 +168,7 @@ def get_case(
         case_id=record.case_id,
         status=record.status,
         applicant_name=applicant_name,
+        possible_duplicate_of=record.possible_duplicate_of,
         human_review_required=record.human_review_required,
         human_review_completed=record.human_review_completed,
         human_notes=state.get("human_notes"),

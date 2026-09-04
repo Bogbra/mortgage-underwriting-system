@@ -20,6 +20,7 @@ class SubmitCaseRequest(ApplicantData):
 class CaseAcceptedResponse(BaseModel):
     case_id: str
     status: str
+    possible_duplicate_of: str | None = None
 
 
 class CaseSummary(BaseModel):
@@ -30,6 +31,7 @@ class CaseSummary(BaseModel):
     final_decision: str | None
     human_review_required: bool
     human_review_completed: bool
+    possible_duplicate_of: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -38,6 +40,7 @@ class CaseDetail(BaseModel):
     case_id: str
     status: str
     applicant_name: str
+    possible_duplicate_of: str | None
     human_review_required: bool
     human_review_completed: bool
     human_notes: str | None

@@ -63,6 +63,31 @@ def test_duplicate_case_id_is_rejected():
         assert second.status_code == 409
 
 
+def test_same_ssn_under_a_new_case_id_is_flagged_not_rejected():
+    # Distinct case_id *and* a synthetic SSN, not reused from any fixture —
+    # the DB is shared across the whole test session (see conftest.py), and
+    # every fixture's own SSN has likely already been submitted by another
+    # test by the time this one runs.
+    original = {**FIXTURES[0], "case_id": "CASE-2026-DUPTEST-A", "ssn": "000-11-2222"}
+    reapplication = {**FIXTURES[0], "case_id": "CASE-2026-DUPTEST-B", "ssn": "000-11-2222"}
+
+    with TestClient(app) as client:
+        first = client.post("/cases", json=original, headers=AUTH)
+        assert first.status_code == 202
+        assert first.json()["possible_duplicate_of"] is None
+
+        second = client.post("/cases", json=reapplication, headers=AUTH)
+        assert second.status_code == 202  # not rejected — same person, new case
+        assert second.json()["possible_duplicate_of"] == original["case_id"]
+
+        detail = client.get(f"/cases/{reapplication['case_id']}", headers=AUTH).json()
+        assert detail["possible_duplicate_of"] == original["case_id"]
+
+        summaries = {c["case_id"]: c for c in client.get("/cases", headers=AUTH).json()}
+        assert summaries[original["case_id"]]["possible_duplicate_of"] is None
+        assert summaries[reapplication["case_id"]]["possible_duplicate_of"] == original["case_id"]
+
+
 def test_human_review_requires_reviewer_role_and_completes_awaiting_case():
     denial_applicant = FIXTURES[2]  # expected DENIED -> forces human_review_required
 

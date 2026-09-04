@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AnalysisCard } from "@/components/AnalysisCard";
@@ -36,6 +37,16 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           {decision && <DecisionBadge decision={decision.decision} />}
         </div>
       </div>
+
+      {caseDetail.possible_duplicate_of && (
+        <div className="card border-amber-500/30 bg-amber-500/10 text-sm text-amber-200">
+          Possible duplicate application — same SSN as{" "}
+          <Link href={`/cases/${caseDetail.possible_duplicate_of}`} className="underline hover:text-amber-100">
+            {caseDetail.possible_duplicate_of}
+          </Link>
+          . Not blocked automatically; review both cases before finalizing.
+        </div>
+      )}
 
       {isProcessing && (
         <div className="card flex items-center gap-3 border-border bg-surface-elevated">

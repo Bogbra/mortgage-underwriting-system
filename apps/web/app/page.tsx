@@ -44,6 +44,11 @@ export default async function CasesPage() {
                       {c.case_id}
                     </Link>
                     <div className="text-xs text-muted">{c.applicant_name}</div>
+                    {c.possible_duplicate_of && (
+                      <div className="text-xs text-amber-300">
+                        ⚠ possible duplicate of {c.possible_duplicate_of}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={c.status} />

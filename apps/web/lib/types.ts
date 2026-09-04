@@ -17,6 +17,7 @@ export interface CaseSummary {
   final_decision: FinalDecision | null;
   human_review_required: boolean;
   human_review_completed: boolean;
+  possible_duplicate_of: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,6 +53,7 @@ export interface CaseDetail {
   case_id: string;
   status: CaseStatus;
   applicant_name: string;
+  possible_duplicate_of: string | null;
   human_review_required: boolean;
   human_review_completed: boolean;
   human_notes: string | null;
