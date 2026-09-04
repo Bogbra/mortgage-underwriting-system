@@ -4,15 +4,30 @@ import type { SpecialistAnalysis } from "@/lib/types";
 export function AnalysisCard({
   title,
   analysis,
+  pending = false,
 }: {
   title: string;
   analysis: SpecialistAnalysis | null;
+  pending?: boolean;
 }) {
   if (!analysis) {
     return (
       <div className="card">
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
-        <p className="mt-2 text-sm text-muted">Not yet completed.</p>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          {pending && (
+            <span className="flex h-2 w-2 rounded-full bg-gray-300 animate-pulse" aria-hidden />
+          )}
+        </div>
+        {pending ? (
+          <div className="mt-3 space-y-2" aria-live="polite">
+            <div className="h-2 w-4/5 animate-pulse rounded bg-white/10" />
+            <div className="h-2 w-3/5 animate-pulse rounded bg-white/10" />
+            <p className="pt-1 text-xs text-muted">Analyzing…</p>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-muted">Not yet completed.</p>
+        )}
       </div>
     );
   }

@@ -8,7 +8,7 @@ import type { ApplicantDataInput } from "./types";
  */
 export const DEMO_FIXTURES: { label: string; applicant: ApplicantDataInput }[] = [
   {
-    label: "Strong applicant (expected: APPROVED)",
+    label: "Strong applicant — clean profile",
     applicant: {
       case_id: "CASE-2026-0001",
       name: "Sarah Johnson",
@@ -32,7 +32,7 @@ export const DEMO_FIXTURES: { label: string; applicant: ApplicantDataInput }[] =
     },
   },
   {
-    label: "Marginal applicant (expected: CONDITIONAL_APPROVAL)",
+    label: "Marginal applicant — mixed signals",
     applicant: {
       case_id: "CASE-2026-0002",
       name: "Michael Chen",
@@ -61,7 +61,7 @@ export const DEMO_FIXTURES: { label: string; applicant: ApplicantDataInput }[] =
     },
   },
   {
-    label: "Weak applicant (expected: DENIED)",
+    label: "Weak applicant — multiple red flags",
     applicant: {
       case_id: "CASE-2026-0003",
       name: "Robert Martinez",
