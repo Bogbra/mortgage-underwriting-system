@@ -11,6 +11,16 @@ scanning), a human-in-the-loop review gate, and a full audit trail.
 It's built as a service: a LangGraph agent engine behind a FastAPI API,
 persisted to Postgres/SQLite, with a Next.js reviewer dashboard on top.
 
+<p align="center">
+  <img src="docs/screenshots/case-list.png" alt="Case queue: three cases with color-coded status, decision, and risk score" width="800"><br>
+  <sub>Case queue — status, decision, and risk score at a glance.</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/case-detail.png" alt="Case detail: final decision, human-in-the-loop review form, all four specialist analyses, critic synthesis, and audit trail" width="800"><br>
+  <sub>Case detail — decision memo, human-in-the-loop review, every specialist's analysis, and a full audit trail.</sub>
+</p>
+
 ## Why it's built this way
 
 The short version — the full reasoning for each decision is in
