@@ -1,5 +1,7 @@
 # Mortgage Underwriting System
 
+[![CI](https://github.com/Bogbra/mortgage-underwriting-system/actions/workflows/ci.yml/badge.svg)](https://github.com/Bogbra/mortgage-underwriting-system/actions/workflows/ci.yml)
+
 A multi-agent mortgage underwriting engine: four specialist agents (credit,
 income, asset, collateral) analyze an application in parallel, a critic
 cross-checks their findings, and a decision agent produces an audit-ready
