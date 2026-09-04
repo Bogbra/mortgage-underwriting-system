@@ -31,8 +31,8 @@
         "use": "primary_residence"
       },
       "assets": {
-        "checking": 18000,
-        "savings": 42000,
+        "checking": 22000,
+        "savings": 98000,
         "recent_deposits": [
           {
             "amount": 2200,
@@ -81,7 +81,7 @@
       },
       "assets": {
         "checking": 9200,
-        "savings": 15800,
+        "savings": 30000,
         "recent_deposits": [
           {
             "amount": 6000,
@@ -92,7 +92,7 @@
       },
       "property": {
         "type": "condominium",
-        "appraised_value": 374000,
+        "appraised_value": 395000,
         "condition": "fair, minor deferred maintenance noted in appraisal"
       },
       "expected_decision": "CONDITIONAL_APPROVAL"

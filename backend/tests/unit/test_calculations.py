@@ -3,6 +3,7 @@ import pytest
 from underwriting.domain.calculations import (
     CreditTier,
     RatioStatus,
+    calculate_down_payment_adequacy,
     calculate_dti_ratio,
     calculate_housing_expense_ratio,
     calculate_ltv_ratio,
@@ -41,6 +42,18 @@ def test_dti_rejects_zero_income():
 def test_ltv_bands(loan_amount, property_value, expected_status):
     result = calculate_ltv_ratio(loan_amount=loan_amount, property_value=property_value)
     assert result.status == expected_status
+
+
+def test_down_payment_adequate_when_liquid_assets_cover_it():
+    result = calculate_down_payment_adequacy(liquid_assets=120_000, down_payment_required=95_000)
+    assert result.adequate is True
+    assert result.shortfall_or_surplus == 25_000
+
+
+def test_down_payment_insufficient_when_liquid_assets_fall_short():
+    result = calculate_down_payment_adequacy(liquid_assets=60_000, down_payment_required=95_000)
+    assert result.adequate is False
+    assert result.shortfall_or_surplus == -35_000
 
 
 def test_reserves_adequate_vs_insufficient():

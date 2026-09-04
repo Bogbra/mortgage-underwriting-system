@@ -43,6 +43,13 @@ class ReservesResult(BaseModel):
     adequate: bool
 
 
+class DownPaymentResult(BaseModel):
+    required_amount: float
+    available_liquid_assets: float
+    shortfall_or_surplus: float
+    adequate: bool
+
+
 class HousingRatioResult(BaseModel):
     housing_ratio: float
     monthly_payment: float
@@ -123,6 +130,28 @@ def calculate_ltv_ratio(loan_amount: float, property_value: float) -> LTVResult:
         loan_amount=round(loan_amount, 2),
         property_value=round(property_value, 2),
         status=status,
+    )
+
+
+def calculate_down_payment_adequacy(
+    liquid_assets: float, down_payment_required: float
+) -> DownPaymentResult:
+    """Whether liquid assets actually cover the down payment.
+
+    Added after a live eval against a real model (see docs/adr/0006):
+    reserve adequacy was being computed against *gross* liquid assets,
+    silently ignoring that the down payment itself has to come out of that
+    same pool first. A real model caught an applicant whose liquid assets
+    were below the required down payment — a case the deterministic layer
+    had no calculator for at all.
+    """
+
+    shortfall_or_surplus = liquid_assets - down_payment_required
+    return DownPaymentResult(
+        required_amount=round(down_payment_required, 2),
+        available_liquid_assets=round(liquid_assets, 2),
+        shortfall_or_surplus=round(shortfall_or_surplus, 2),
+        adequate=shortfall_or_surplus >= 0,
     )
 
 

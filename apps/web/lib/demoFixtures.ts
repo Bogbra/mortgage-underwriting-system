@@ -22,8 +22,8 @@ export const DEMO_FIXTURES: { label: string; applicant: ApplicantDataInput }[] =
       debts: { car_loan: 380, student_loan: 210 },
       loan: { amount: 380000, down_payment: 95000, estimated_payment: 2450, use: "primary_residence" },
       assets: {
-        checking: 18000,
-        savings: 42000,
+        checking: 22000,
+        savings: 98000,
         recent_deposits: [
           { amount: 2200, date: "2026-06-15", explanation: "Annual performance bonus, paystub attached" },
         ],
@@ -52,12 +52,12 @@ export const DEMO_FIXTURES: { label: string; applicant: ApplicantDataInput }[] =
       loan: { amount: 340000, down_payment: 34000, estimated_payment: 2380, use: "primary_residence" },
       assets: {
         checking: 9200,
-        savings: 15800,
+        savings: 30000,
         recent_deposits: [
           { amount: 6000, date: "2026-07-01", explanation: "Client invoice payment; sourcing not yet documented" },
         ],
       },
-      property: { type: "condominium", appraised_value: 374000, condition: "fair, minor deferred maintenance noted" },
+      property: { type: "condominium", appraised_value: 395000, condition: "fair, minor deferred maintenance noted" },
     },
   },
   {
