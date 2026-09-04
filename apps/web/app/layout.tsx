@@ -11,17 +11,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-surface">
-        <header className="border-b border-border bg-panel/60">
+      <body className="min-h-screen bg-bg">
+        <header className="border-b border-border bg-surface">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <Link href="/" className="text-sm font-semibold tracking-wide text-white">
+            <Link href="/" className="text-sm font-semibold tracking-wide text-fg">
               Underwriting Console
             </Link>
             <nav className="flex gap-6 text-sm text-muted">
-              <Link href="/" className="hover:text-white">
+              <Link href="/" className="hover:text-fg">
                 Cases
               </Link>
-              <Link href="/new" className="hover:text-white">
+              <Link href="/new" className="hover:text-fg">
                 New case
               </Link>
             </nav>

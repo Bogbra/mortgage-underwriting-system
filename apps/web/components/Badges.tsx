@@ -1,8 +1,10 @@
 import type { CaseStatus, FinalDecision, Recommendation, RiskLevel } from "@/lib/types";
 
 const STATUS_STYLES: Record<CaseStatus, string> = {
-  received: "bg-neutral-500/15 text-neutral-300 ring-neutral-500/30",
-  running: "bg-gray-500/20 text-gray-300 ring-gray-500/40",
+  // Neutral progress states — not risk signals, so these use the shared
+  // chrome palette rather than the semantic red/amber/green used below.
+  received: "bg-secondary text-muted ring-border-strong",
+  running: "bg-gold/15 text-gold-hover ring-gold/30",
   awaiting_human_review: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
   completed: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
   failed: "bg-red-500/15 text-red-300 ring-red-500/30",
@@ -54,10 +56,10 @@ export function RiskScoreMeter({ score }: { score: number }) {
   const tone = score >= 65 ? "bg-red-400" : score >= 31 ? "bg-amber-400" : "bg-emerald-400";
   return (
     <div className="flex items-center gap-3">
-      <div className="h-2 w-32 overflow-hidden rounded-full bg-white/10">
+      <div className="h-2 w-32 overflow-hidden rounded-full bg-border">
         <div className={`h-full ${tone}`} style={{ width: `${score}%` }} />
       </div>
-      <span className="text-sm text-white">{score}/100</span>
+      <span className="text-sm text-fg">{score}/100</span>
     </div>
   );
 }

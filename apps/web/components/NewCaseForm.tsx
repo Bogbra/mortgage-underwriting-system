@@ -45,7 +45,7 @@ export function NewCaseForm() {
           <button
             key={fixture.label}
             onClick={() => loadFixture(i)}
-            className="rounded-lg border border-border bg-panel px-3 py-1.5 text-xs text-neutral-200 hover:border-gray-400 hover:text-white"
+            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-muted hover:border-border-strong hover:text-fg"
           >
             {fixture.label}
           </button>
@@ -53,7 +53,7 @@ export function NewCaseForm() {
       </div>
 
       <textarea
-        className="h-96 w-full rounded-lg border border-border bg-surface p-3 font-mono text-xs text-white"
+        className="h-96 w-full rounded-lg border border-border bg-bg p-3 font-mono text-xs text-fg"
         value={json}
         onChange={(e) => setJson(e.target.value)}
         spellCheck={false}
@@ -64,7 +64,7 @@ export function NewCaseForm() {
       <button
         disabled={isPending}
         onClick={submit}
-        className="rounded-lg border border-white/15 bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-medium text-bg hover:bg-accent-hover disabled:opacity-50"
       >
         {isPending ? "Submitting…" : "Submit case"}
       </button>

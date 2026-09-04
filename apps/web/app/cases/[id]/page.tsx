@@ -28,7 +28,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-white">{caseDetail.case_id}</h1>
+          <h1 className="text-xl font-semibold text-fg">{caseDetail.case_id}</h1>
           <p className="text-sm text-muted">{caseDetail.applicant_name}</p>
         </div>
         <div className="flex items-center gap-3">
@@ -38,12 +38,12 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       {isProcessing && (
-        <div className="card flex items-center gap-3 border-gray-500/30 bg-gray-500/10">
+        <div className="card flex items-center gap-3 border-border bg-surface-elevated">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gray-300 opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gray-300" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-subtle opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-subtle" />
           </span>
-          <p className="text-sm text-neutral-200">
+          <p className="text-sm text-fg">
             Case received — specialist agents are analyzing now. This page updates automatically
             every few seconds.
           </p>
@@ -59,10 +59,10 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       {decision && (
         <div className="card space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <h2 className="text-sm font-semibold text-white">Final decision</h2>
+            <h2 className="text-sm font-semibold text-fg">Final decision</h2>
             <RiskScoreMeter score={decision.risk_score} />
           </div>
-          <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-200">
+          <p className="whitespace-pre-line text-sm leading-relaxed text-fg">
             {decision.credit_memo}
           </p>
           {decision.conditions.length > 0 && (
@@ -97,13 +97,13 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
       {caseDetail.human_review_completed && (
         <div className="card space-y-1">
-          <h2 className="text-sm font-semibold text-white">Reviewer notes</h2>
-          <p className="text-sm text-neutral-200">{caseDetail.human_notes}</p>
+          <h2 className="text-sm font-semibold text-fg">Reviewer notes</h2>
+          <p className="text-sm text-fg">{caseDetail.human_notes}</p>
         </div>
       )}
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-white">Specialist analyses</h2>
+        <h2 className="mb-3 text-sm font-semibold text-fg">Specialist analyses</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <AnalysisCard title="Credit Analyst" analysis={caseDetail.credit_analysis} pending={isProcessing} />
           <AnalysisCard title="Income Analyst" analysis={caseDetail.income_analysis} pending={isProcessing} />
@@ -118,8 +118,8 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
       {critic && (
         <div className="card space-y-2">
-          <h2 className="text-sm font-semibold text-white">Critic synthesis</h2>
-          <p className="text-sm text-neutral-200">{critic.synthesis}</p>
+          <h2 className="text-sm font-semibold text-fg">Critic synthesis</h2>
+          <p className="text-sm text-fg">{critic.synthesis}</p>
           {critic.issues.length > 0 && (
             <ul className="list-inside list-disc space-y-0.5 text-sm text-amber-300">
               {critic.issues.map((issue, i) => (
@@ -131,12 +131,12 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       )}
 
       <div className="card">
-        <h2 className="mb-2 text-sm font-semibold text-white">Audit trail</h2>
+        <h2 className="mb-2 text-sm font-semibold text-fg">Audit trail</h2>
         {caseDetail.reasoning_chain.length === 0 ? (
           <div className="flex items-center gap-2 text-sm text-muted">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gray-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gray-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-subtle opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-subtle" />
             </span>
             Case received, waiting for the first agent to report in…
           </div>
@@ -144,15 +144,15 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           <ol className="space-y-1.5 text-sm text-muted">
             {caseDetail.reasoning_chain.map((step, i) => (
               <li key={i} className="flex gap-2">
-                <span className="text-white/30">{i + 1}.</span>
+                <span className="text-subtle">{i + 1}.</span>
                 <span>{step}</span>
               </li>
             ))}
             {isProcessing && (
-              <li className="flex items-center gap-2 pt-1 text-white/40">
+              <li className="flex items-center gap-2 pt-1 text-muted">
                 <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gray-400 opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gray-400" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-subtle opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-subtle" />
                 </span>
                 still working…
               </li>

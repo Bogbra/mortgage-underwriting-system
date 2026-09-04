@@ -32,12 +32,12 @@ export function ReviewForm({ caseId }: { caseId: string }) {
 
   return (
     <div className="card space-y-3">
-      <h3 className="text-sm font-semibold text-white">Human-in-the-loop review</h3>
+      <h3 className="text-sm font-semibold text-fg">Human-in-the-loop review</h3>
       <p className="text-sm text-muted">
         This case is flagged for senior underwriter review before it can be finalized.
       </p>
       <textarea
-        className="w-full rounded-lg border border-border bg-surface p-3 text-sm text-white placeholder:text-muted"
+        className="w-full rounded-lg border border-border bg-bg p-3 text-sm text-fg placeholder:text-subtle"
         rows={3}
         placeholder="Reviewer notes (required)"
         value={notes}
