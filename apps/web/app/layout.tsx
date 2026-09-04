@@ -1,0 +1,34 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Mortgage Underwriting Console",
+  description: "Multi-agent underwriting workflow: case queue, agent findings, and reviewer console.",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className="min-h-screen bg-surface">
+        <header className="border-b border-border bg-panel/60">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+            <Link href="/" className="text-sm font-semibold tracking-wide text-white">
+              Underwriting Console
+            </Link>
+            <nav className="flex gap-6 text-sm text-muted">
+              <Link href="/" className="hover:text-white">
+                Cases
+              </Link>
+              <Link href="/new" className="hover:text-white">
+                New case
+              </Link>
+            </nav>
+          </div>
+        </header>
+        <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      </body>
+    </html>
+  );
+}
