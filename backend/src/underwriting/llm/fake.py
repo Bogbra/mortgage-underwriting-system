@@ -33,6 +33,7 @@ from underwriting.domain.schemas import (
     CriticReview,
     DecisionOutcome,
     FinalDecision,
+    GroundednessVerdict,
     IncomeAnalysis,
     Recommendation,
     RiskLevel,
@@ -167,6 +168,43 @@ def _build_decision(text: str) -> DecisionOutcome:
     )
 
 
+_CONTEXT_RE = re.compile(r"POLICY CONTEXT:\s*(.*?)\s*CLAIM:", re.DOTALL)
+_CLAIM_RE = re.compile(r"CLAIM:\s*(.*)\Z", re.DOTALL)
+_WORD_RE = re.compile(r"[a-zA-Z]{4,}")
+_GROUNDEDNESS_OVERLAP_THRESHOLD = 0.35
+
+
+def _build_groundedness(text: str) -> GroundednessVerdict:
+    """Word-overlap heuristic standing in for an LLM-as-judge groundedness check.
+
+    Real groundedness checking needs a model reading both the claim and the
+    context — a hash embedding or a regex can't judge entailment. This is
+    explicitly a rough proxy so `evals/rag_eval.py` has something offline to
+    run, not a claim that vocabulary overlap proves a statement is supported.
+    """
+
+    claim_match = _CLAIM_RE.search(text)
+    context_match = _CONTEXT_RE.search(text)
+    claim = claim_match.group(1) if claim_match else text
+    context = context_match.group(1) if context_match else ""
+
+    claim_words = {w.lower() for w in _WORD_RE.findall(claim)}
+    context_words = {w.lower() for w in _WORD_RE.findall(context)}
+    if not claim_words:
+        return GroundednessVerdict(grounded=True, notes="[demo-mode] empty claim.")
+
+    overlap_ratio = len(claim_words & context_words) / len(claim_words)
+    grounded = overlap_ratio >= _GROUNDEDNESS_OVERLAP_THRESHOLD
+    return GroundednessVerdict(
+        grounded=grounded,
+        unsupported_claims=[] if grounded else [claim.strip()[:200]],
+        notes=(
+            f"[demo-mode] word-overlap heuristic: {overlap_ratio:.0%} of claim vocabulary "
+            "found in retrieved context — an offline stand-in for a real LLM-as-judge check."
+        ),
+    )
+
+
 class FakeChatModel(BaseChatModel):
     """A `BaseChatModel` that never leaves the process.
 
@@ -194,6 +232,8 @@ class FakeChatModel(BaseChatModel):
                 return _build_critic(text)
             if schema is DecisionOutcome:
                 return _build_decision(text)
+            if schema is GroundednessVerdict:
+                return _build_groundedness(text)
             raise TypeError(f"FakeChatModel has no deterministic handler for {schema!r}")
 
         return RunnableLambda(_invoke)

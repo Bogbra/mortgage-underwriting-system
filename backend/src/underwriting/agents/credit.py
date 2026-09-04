@@ -11,6 +11,8 @@ from underwriting.domain.schemas import CreditAnalysis, UnderwritingState
 from underwriting.llm.client import build_chat_model
 from underwriting.rag.policy_store import get_policy_store
 
+RETRIEVAL_QUERY = "credit score requirements bankruptcies foreclosures late payments"
+
 SYSTEM_PROMPT = f"""You are a Senior Credit Analyst with 15+ years of experience in mortgage \
 underwriting.
 
@@ -32,9 +34,7 @@ def credit_analyst_node(state: UnderwritingState) -> dict:
     credit_score = sanitized.get("credit_score", 0)
 
     score_result = check_credit_score_policy(credit_score)
-    policies = get_policy_store().retrieve(
-        "credit score requirements bankruptcies foreclosures late payments"
-    )
+    policies = get_policy_store().retrieve(RETRIEVAL_QUERY)
 
     user_prompt = f"""Case: {state.case_id}
 

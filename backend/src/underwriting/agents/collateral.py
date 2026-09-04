@@ -11,6 +11,8 @@ from underwriting.domain.schemas import CollateralAnalysis, UnderwritingState
 from underwriting.llm.client import build_chat_model
 from underwriting.rag.policy_store import get_policy_store
 
+RETRIEVAL_QUERY = "appraisal property condition LTV collateral"
+
 SYSTEM_PROMPT = f"""You are a Senior Collateral Analyst with expertise in property valuation.
 
 ANALYSIS FRAMEWORK:
@@ -35,7 +37,7 @@ def collateral_analyst_node(state: UnderwritingState) -> dict:
         property_value=property_data.get("appraised_value", 0),
     )
 
-    policies = get_policy_store().retrieve("appraisal property condition LTV collateral")
+    policies = get_policy_store().retrieve(RETRIEVAL_QUERY)
 
     user_prompt = f"""Case: {state.case_id}
 

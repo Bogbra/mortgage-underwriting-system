@@ -1,0 +1,80 @@
+{
+  "queries": [
+    {
+      "query": "credit score requirements bankruptcies foreclosures late payments",
+      "note": "Production query used by agents/credit.py",
+      "expected_sections": [
+        "1.1 Minimum Credit Score",
+        "1.2 Bankruptcies and Foreclosures",
+        "1.3 Late Payments and Collections"
+      ]
+    },
+    {
+      "query": "employment income verification DTI ratio self-employed",
+      "note": "Production query used by agents/income.py",
+      "expected_sections": [
+        "2.1 Employment Stability",
+        "2.2 Debt-to-Income (DTI) Ratio",
+        "2.3 Self-Employment Income"
+      ]
+    },
+    {
+      "query": "down payment reserves assets large deposits gift funds",
+      "note": "Production query used by agents/asset.py",
+      "expected_sections": [
+        "3.1 Down Payment Sourcing",
+        "3.2 Reserve Requirements",
+        "3.3 Large Deposits"
+      ]
+    },
+    {
+      "query": "appraisal property condition LTV collateral",
+      "note": "Production query used by agents/collateral.py",
+      "expected_sections": [
+        "4.1 Loan-to-Value (LTV) Ratio",
+        "4.2 Property Condition",
+        "4.3 Appraisal Validity"
+      ]
+    },
+    {
+      "query": "what is the minimum credit score for a conventional loan",
+      "expected_sections": ["1.1 Minimum Credit Score"]
+    },
+    {
+      "query": "how long after a Chapter 7 bankruptcy can someone qualify for a mortgage",
+      "expected_sections": ["1.2 Bankruptcies and Foreclosures"]
+    },
+    {
+      "query": "maximum acceptable debt-to-income ratio for approval",
+      "expected_sections": ["2.2 Debt-to-Income (DTI) Ratio"]
+    },
+    {
+      "query": "how many years of tax returns are required for self-employed borrowers",
+      "expected_sections": ["2.3 Self-Employment Income"]
+    },
+    {
+      "query": "how many months of post-closing reserves are required",
+      "expected_sections": ["3.2 Reserve Requirements"]
+    },
+    {
+      "query": "dollar threshold that makes a bank deposit require sourcing documentation",
+      "expected_sections": ["3.3 Large Deposits"]
+    },
+    {
+      "query": "loan-to-value ratio above which mortgage insurance is required",
+      "expected_sections": ["4.1 Loan-to-Value (LTV) Ratio"]
+    },
+    {
+      "query": "how many days is a property appraisal valid before closing",
+      "expected_sections": ["4.3 Appraisal Validity"]
+    },
+    {
+      "query": "can race, religion, or national origin be used in an underwriting decision",
+      "expected_sections": ["5.1 Prohibited Factors"]
+    },
+    {
+      "query": "using zip code or neighborhood characteristics as a risk factor",
+      "expected_sections": ["5.2 Geographic Proxies"]
+    }
+  ]
+}

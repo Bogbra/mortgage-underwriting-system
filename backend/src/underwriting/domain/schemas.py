@@ -135,6 +135,21 @@ class CollateralAnalysis(SpecialistAnalysis):
     pass
 
 
+class GroundednessVerdict(BaseModel):
+    """RAG faithfulness check: is a claim actually supported by retrieved context?
+
+    Used by `evals/rag_eval.py` to check whether a specialist agent's
+    analysis is grounded in the policy text it was actually given, rather
+    than plausible-sounding but unsupported policy assertions.
+    """
+
+    grounded: bool = Field(description="False if any claim is not supported by the context.")
+    unsupported_claims: list[str] = Field(
+        default_factory=list, description="Claims in the analysis not backed by the context."
+    )
+    notes: str = ""
+
+
 class CriticReview(BaseModel):
     consistent: bool = Field(description="False if specialist analyses contradict each other.")
     issues: list[str] = Field(default_factory=list)

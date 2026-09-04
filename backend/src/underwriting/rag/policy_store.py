@@ -22,6 +22,11 @@ from underwriting.llm.client import build_embeddings
 _SECTION_HEADING_RE = re.compile(r"^#{2,4}\s*\d+\.\d+\s+.+", re.MULTILINE)
 
 
+def _section_label(text: str) -> str:
+    match = _SECTION_HEADING_RE.match(text)
+    return match.group(0).lstrip("#").strip() if match else "General"
+
+
 class PolicyStore:
     def __init__(self, vectorstore: Chroma) -> None:
         self._vectorstore = vectorstore
@@ -33,13 +38,28 @@ class PolicyStore:
         sections: dict[str, str] = {}
         for doc in docs:
             text = doc.page_content.strip()
-            match = _SECTION_HEADING_RE.match(text)
-            section = match.group(0).lstrip("#").strip() if match else "General"
+            section = _section_label(text)
             if section not in sections:
                 sections[section] = text
             elif text not in sections[section]:
                 sections[section] += f"\n\n{text}"
         return "\n\n---\n\n".join(f"[{section}]\n{body}" for section, body in sections.items())
+
+    def retrieve_sections(self, query: str, k: int = 6) -> list[str]:
+        """Which policy sections the top-k chunks for `query` belong to, ranked.
+
+        Used by `evals/rag_eval.py` for recall@k — a thin, non-LLM entry
+        point into the same retrieval `retrieve()` uses, so the eval measures
+        the exact retrieval behavior agents get, not a re-implementation of it.
+        """
+
+        docs = self._vectorstore.similarity_search(query, k=k)
+        seen: list[str] = []
+        for doc in docs:
+            section = _section_label(doc.page_content.strip())
+            if section not in seen:
+                seen.append(section)
+        return seen
 
 
 def _load_policy_documents(path: Path) -> list[Document]:

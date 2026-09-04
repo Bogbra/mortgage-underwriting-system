@@ -15,6 +15,8 @@ from underwriting.domain.schemas import AssetAnalysis, UnderwritingState
 from underwriting.llm.client import build_chat_model
 from underwriting.rag.policy_store import get_policy_store
 
+RETRIEVAL_QUERY = "down payment reserves assets large deposits gift funds"
+
 SYSTEM_PROMPT = f"""You are the Asset Analyst Agent in a mortgage underwriting multi-agent \
 system.
 
@@ -51,9 +53,7 @@ def asset_analyst_node(state: UnderwritingState) -> dict:
     )
     deposits_result = find_large_deposits(assets.get("recent_deposits", []), monthly_income)
 
-    policies = get_policy_store().retrieve(
-        "down payment reserves assets large deposits gift funds"
-    )
+    policies = get_policy_store().retrieve(RETRIEVAL_QUERY)
 
     user_prompt = f"""Case: {state.case_id}
 

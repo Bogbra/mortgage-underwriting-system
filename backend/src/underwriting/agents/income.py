@@ -15,6 +15,8 @@ from underwriting.domain.schemas import IncomeAnalysis, UnderwritingState
 from underwriting.llm.client import build_chat_model
 from underwriting.rag.policy_store import get_policy_store
 
+RETRIEVAL_QUERY = "employment income verification DTI ratio self-employed"
+
 SYSTEM_PROMPT = f"""You are the Income Analyst Agent in a mortgage underwriting multi-agent \
 system.
 
@@ -42,9 +44,7 @@ def income_analyst_node(state: UnderwritingState) -> dict:
     housing_result = calculate_housing_expense_ratio(proposed_payment, monthly_income)
     debt_breakdown = calculate_total_debt_obligations(debts, proposed_payment)
 
-    policies = get_policy_store().retrieve(
-        "employment income verification DTI ratio self-employed"
-    )
+    policies = get_policy_store().retrieve(RETRIEVAL_QUERY)
 
     user_prompt = f"""Case: {state.case_id}
 

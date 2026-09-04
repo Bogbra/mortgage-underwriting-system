@@ -93,8 +93,8 @@ backend/            Python: domain logic, agents, graph, RAG, FastAPI service
     agents/          One module per agent (credit/income/asset/collateral/critic/decision)
     graph/           The LangGraph workflow definition
     api/             FastAPI app: routers, auth, persistence, rate limiting
-    evals/           Golden-case regression eval script
-  data/              Policy manual (markdown) + golden test cases (JSON)
+    evals/           Decision-quality regression + RAG recall/groundedness evals
+  data/              Policy manual (markdown), golden test cases, RAG eval queries
   tests/             pytest: unit (domain) + integration (graph, API)
 apps/web/            Next.js 15 dashboard (case queue, detail, HITL review)
 infra/               Dockerfiles + docker-compose (api, web, Postgres)
@@ -136,11 +136,12 @@ Dashboard at `http://localhost:3000`, API at `http://localhost:8000`.
 
 ```bash
 cd backend
-uv run pytest tests -q                    # 43 tests: domain unit tests +
-                                           # full-graph integration tests +
-                                           # API tests, all offline
-uv run python -m underwriting.evals.run   # golden-case decision regression
-uv run ruff check src tests               # lint
+uv run pytest tests -q                        # 52 tests: domain unit tests +
+                                               # full-graph integration tests +
+                                               # API tests, all offline
+uv run python -m underwriting.evals.run       # golden-case decision regression
+uv run python -m underwriting.evals.rag_eval  # RAG recall@k + output groundedness
+uv run ruff check src tests                   # lint
 ```
 
 `tests/integration/test_graph_fake_llm.py` runs the real parallel workflow
@@ -154,6 +155,20 @@ append) LangGraph reducer would introduce silently.
 denial) and diffs the actual decision against the expected one. Pass
 `--provider openai` to run it against a live model before shipping a prompt
 change.
+
+`evals/rag_eval.py` evaluates the RAG layer specifically — decision-level
+evals can't see this. **Phase 1** measures retrieval recall@k against 14
+golden `query → expected policy section(s)` pairs
+(`data/evals/rag_golden_queries.json`). **Phase 2** checks whether each
+specialist agent's actual output is *grounded* in the policy text it was
+given, via an LLM-as-judge (or a word-overlap heuristic offline). Run with
+`--provider openai --embeddings openai` for numbers that mean something —
+the default fake embeddings are a content-blind hash (see ADR 0003), so
+Phase 1 prints a warning rather than let anyone mistake a fake-mode number
+for retrieval quality. The honest result on this project's own policy
+document and golden cases — recall@6 of 43%, 7/12 specialist analyses
+fully grounded — plus what it points at, is written up in
+[ADR 0007](docs/adr/0007-rag-evaluation.md).
 
 ## Security posture (and its limits)
 
