@@ -44,6 +44,17 @@ The short version — the full reasoning for each decision is in
   SQLite locally, Postgres in Docker, an append-only audit log, and a
   `Principal`-based auth seam sized for a portfolio project but shaped like
   the real thing.
+- **[Down-payment adequacy is its own deterministic check.](docs/adr/0006-down-payment-adequacy-check.md)**
+  Found by running the eval harness against a real model instead of only
+  the offline fake — a case with more down payment required than liquid
+  assets available had nothing computing that comparison at all.
+- **[RAG is evaluated on retrieval recall and output groundedness, separately.](docs/adr/0007-rag-evaluation.md)**
+  A decision-level eval can't see either failure mode. Run for real, this
+  project's own retriever gets recall@6 = 43%, and 7/12 specialist analyses
+  are fully grounded in the policy text they were given.
+- **[The deterministic tools are also reachable over MCP.](docs/adr/0008-mcp-tool-exposure.md)**
+  `mcp_server.py` wraps the identical `domain/calculations` functions the
+  LangGraph agents call in-process — one calculation, two transports.
 
 ## Architecture
 
@@ -94,6 +105,7 @@ backend/            Python: domain logic, agents, graph, RAG, FastAPI service
     graph/           The LangGraph workflow definition
     api/             FastAPI app: routers, auth, persistence, rate limiting
     evals/           Decision-quality regression + RAG recall/groundedness evals
+    mcp_server.py    Deterministic tools + policy retrieval, exposed over MCP
   data/              Policy manual (markdown), golden test cases, RAG eval queries
   tests/             pytest: unit (domain) + integration (graph, API)
 apps/web/            Next.js 15 dashboard (case queue, detail, HITL review)
@@ -136,7 +148,7 @@ Dashboard at `http://localhost:3000`, API at `http://localhost:8000`.
 
 ```bash
 cd backend
-uv run pytest tests -q                        # 52 tests: domain unit tests +
+uv run pytest tests -q                        # 62 tests: domain unit tests +
                                                # full-graph integration tests +
                                                # API tests, all offline
 uv run python -m underwriting.evals.run       # golden-case decision regression
@@ -169,6 +181,39 @@ for retrieval quality. The honest result on this project's own policy
 document and golden cases — recall@6 of 43%, 7/12 specialist analyses
 fully grounded — plus what it points at, is written up in
 [ADR 0007](docs/adr/0007-rag-evaluation.md).
+
+## MCP server
+
+The deterministic calculators and policy retrieval are also reachable over
+[MCP](https://modelcontextprotocol.io) — the identical `domain/calculations`
+functions the LangGraph agents call in-process, not a reimplementation (see
+[ADR 0008](docs/adr/0008-mcp-tool-exposure.md)).
+
+```bash
+cd backend
+uv sync --extra mcp
+uv run python -m underwriting.mcp_server
+```
+
+To connect it to Claude Desktop (or any MCP client that launches a local
+stdio server), add to its config:
+
+```json
+{
+  "mcpServers": {
+    "underwriting-tools": {
+      "command": "uv",
+      "args": ["run", "--project", "/absolute/path/to/backend", "python", "-m", "underwriting.mcp_server"]
+    }
+  }
+}
+```
+
+Nine tools: `calculate_dti_ratio`, `calculate_ltv_ratio`,
+`calculate_down_payment_adequacy`, `calculate_reserves`,
+`calculate_housing_expense_ratio`, `check_credit_score_policy`,
+`find_large_deposits`, `calculate_total_debt_obligations`, and
+`retrieve_underwriting_policy`.
 
 ## Security posture (and its limits)
 
