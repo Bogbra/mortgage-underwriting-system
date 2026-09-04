@@ -31,7 +31,10 @@ class CaseRecord(Base):
     final_decision: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
     human_review_required: Mapped[bool] = mapped_column(Boolean, default=False)
     human_review_completed: Mapped[bool] = mapped_column(Boolean, default=False)
-    applicant_name_redacted: Mapped[str] = mapped_column(String, default="")
+    # The real applicant name — legitimate for staff to see (they're the ones
+    # underwriting the loan); never sent to the LLM, which only ever sees
+    # `sanitized_data` (see docs/adr/0004). Distinct concerns, distinct views.
+    applicant_name: Mapped[str] = mapped_column(String, default="")
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     state_json: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))

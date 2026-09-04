@@ -12,7 +12,7 @@ export type Recommendation = "PASS" | "CONDITIONAL" | "FAIL";
 export interface CaseSummary {
   case_id: string;
   status: CaseStatus;
-  applicant_name_redacted: string;
+  applicant_name: string;
   risk_score: number | null;
   final_decision: FinalDecision | null;
   human_review_required: boolean;
@@ -51,6 +51,7 @@ export interface BiasFlag {
 export interface CaseDetail {
   case_id: string;
   status: CaseStatus;
+  applicant_name: string;
   human_review_required: boolean;
   human_review_completed: boolean;
   human_notes: string | null;

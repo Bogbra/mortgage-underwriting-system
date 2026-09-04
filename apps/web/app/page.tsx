@@ -43,7 +43,7 @@ export default async function CasesPage() {
                     <Link href={`/cases/${c.case_id}`} className="font-medium text-white hover:text-gray-300">
                       {c.case_id}
                     </Link>
-                    <div className="text-xs text-muted">{c.applicant_name_redacted}</div>
+                    <div className="text-xs text-muted">{c.applicant_name}</div>
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={c.status} />

@@ -81,7 +81,7 @@ def submit_case(
     record = CaseRecord(
         case_id=applicant.case_id,
         status=CaseStatus.RECEIVED.value,
-        applicant_name_redacted="[NAME_REDACTED]",
+        applicant_name=applicant.name,
         state_json={},
     )
     db.add(record)
@@ -113,7 +113,7 @@ def list_cases(
         CaseSummary(
             case_id=r.case_id,
             status=r.status,
-            applicant_name_redacted=r.applicant_name_redacted,
+            applicant_name=r.applicant_name,
             risk_score=r.risk_score,
             final_decision=r.final_decision,
             human_review_required=r.human_review_required,
@@ -136,9 +136,11 @@ def get_case(
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Case {case_id} not found.")
 
     state = record.state_json or {}
+    applicant_name = state.get("applicant_data", {}).get("name") or record.applicant_name
     return CaseDetail(
         case_id=record.case_id,
         status=record.status,
+        applicant_name=applicant_name,
         human_review_required=record.human_review_required,
         human_review_completed=record.human_review_completed,
         human_notes=state.get("human_notes"),

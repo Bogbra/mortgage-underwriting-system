@@ -25,7 +25,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-white">{caseDetail.case_id}</h1>
-          <p className="text-sm text-muted">{caseDetail.sanitized_data.name as string}</p>
+          <p className="text-sm text-muted">{caseDetail.applicant_name}</p>
         </div>
         <div className="flex items-center gap-3">
           <StatusBadge status={caseDetail.status} />

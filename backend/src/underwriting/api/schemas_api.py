@@ -25,7 +25,7 @@ class CaseAcceptedResponse(BaseModel):
 class CaseSummary(BaseModel):
     case_id: str
     status: str
-    applicant_name_redacted: str
+    applicant_name: str
     risk_score: int | None
     final_decision: str | None
     human_review_required: bool
@@ -37,6 +37,7 @@ class CaseSummary(BaseModel):
 class CaseDetail(BaseModel):
     case_id: str
     status: str
+    applicant_name: str
     human_review_required: bool
     human_review_completed: bool
     human_notes: str | None
