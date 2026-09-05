@@ -177,8 +177,8 @@ evidence instead of a guess.
 
 ### Phase 4: zero numeric errors among what the judge flagged
 
-Across all 12 specialist analyses: **8 consistent, 0 inconsistent, 11
-unrecognized** (of 19 LTV/DTI percentage citations found; some sentences
+Across all 12 specialist analyses: **9 consistent, 0 inconsistent, 11
+unrecognized** (of 20 LTV/DTI percentage citations found; some sentences
 are checked twice because `claim_text` concatenates `summary` and
 `key_factors`, which often restate the same figure). Zero inconsistent
 findings means every LTV/DTI number a specialist actually cited was
@@ -193,6 +193,27 @@ This is the concrete version of Phase 3's finding: the judge's Phase 2
 "unsupported" calls are, so far, entirely about phrasing and adjacent
 inferential language, never about a specialist getting an LTV/DTI number
 or its policy consequence wrong.
+
+Note this module's own name is narrower than it sounds: this is not
+citation accuracy in the general RAG sense of claim -> cited source ->
+does the source support the claim. It's specifically whether an LTV/DTI
+percentage's stated policy outcome matches the policy's numeric band —
+see `citation_accuracy.py`'s module docstring for the distinction.
+
+A code review of this ADR's own eval caught two boundary bugs in
+`citation_accuracy.py` worth naming, since a deterministic band-check
+getting a boundary wrong is exactly the failure class it exists to catch
+in the specialists' output: (1) the band table was originally defined
+with `value >= low and value < high`, which put every value sitting
+exactly on a threshold (43, 50, 80, 90, 97) in the band *above* the one
+`domain/calculations.py`'s own `<=` chains actually use — fixed by
+matching that `<=`, first-band-that-fits semantics directly. (2) a claim
+phrased as "LTV ... above 80%" was banding the literal number 80 as if it
+were an exact reading, landing it in the no-MI band and flagging a
+correct claim as inconsistent — fixed by detecting exclusive comparison
+words ("above," "over," "exceeds," ...) and banding just past the
+threshold instead of at it. Both are covered by regression tests
+(`tests/unit/test_citation_accuracy.py`) at the exact boundary values.
 
 ### What's still fake-mode-only, and why
 
