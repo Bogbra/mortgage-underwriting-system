@@ -48,10 +48,12 @@ The short version — the full reasoning for each decision is in
   Found by running the eval harness against a real model instead of only
   the offline fake — a case with more down payment required than liquid
   assets available had nothing computing that comparison at all.
-- **[RAG is evaluated on retrieval recall and output groundedness, separately.](docs/adr/0007-rag-evaluation.md)**
-  A decision-level eval can't see either failure mode. Run for real, this
-  project's own retriever gets recall@6 = 43%, and 7/12 specialist analyses
-  are fully grounded in the policy text they were given.
+- **[RAG is evaluated on retrieval, groundedness, judge reliability, and citation accuracy — four separate checks.](docs/adr/0007-rag-evaluation.md)**
+  A decision-level eval can't see any of these. Retrieval recall@6 started
+  at 43% (a chunking bug, since fixed — now 100%); groundedness sits at
+  25% because an LLM-as-judge flags correct claims over wording, not
+  numeric errors — a deterministic citation-accuracy check confirms zero
+  actual LTV/DTI mistakes among what the judge rejected.
 - **[The deterministic tools are also reachable over MCP.](docs/adr/0008-mcp-tool-exposure.md)**
   `mcp_server.py` wraps the identical `domain/calculations` functions the
   LangGraph agents call in-process — one calculation, two transports.
@@ -104,7 +106,7 @@ backend/            Python: domain logic, agents, graph, RAG, FastAPI service
     agents/          One module per agent (credit/income/asset/collateral/critic/decision)
     graph/           The LangGraph workflow definition
     api/             FastAPI app: routers, auth, persistence, rate limiting
-    evals/           Decision-quality regression + RAG recall/groundedness evals
+    evals/           Decision-quality regression + RAG recall/groundedness/judge/citation evals
     mcp_server.py    Deterministic tools + policy retrieval, exposed over MCP
   data/              Policy manual (markdown), golden test cases, RAG eval queries
   tests/             pytest: unit (domain) + integration (graph, API)
@@ -152,7 +154,7 @@ uv run pytest tests -q                        # 62 tests: domain unit tests +
                                                # full-graph integration tests +
                                                # API tests, all offline
 uv run python -m underwriting.evals.run       # golden-case decision regression
-uv run python -m underwriting.evals.rag_eval  # RAG recall@k + output groundedness
+uv run python -m underwriting.evals.rag_eval  # RAG: recall@k, groundedness, judge reliability, citation accuracy
 uv run ruff check src tests                   # lint
 ```
 
@@ -169,17 +171,28 @@ denial) and diffs the actual decision against the expected one. Pass
 change.
 
 `evals/rag_eval.py` evaluates the RAG layer specifically — decision-level
-evals can't see this. **Phase 1** measures retrieval recall@k against 14
-golden `query → expected policy section(s)` pairs
+evals can't see any of this, across four phases. **Phase 1** measures
+retrieval hit_rate@k *and* true recall@k (`|expected ∩ retrieved| /
+|expected|`) against 14 golden `query → expected policy section(s)` pairs
 (`data/evals/rag_golden_queries.json`). **Phase 2** checks whether each
 specialist agent's actual output is *grounded* in the policy text it was
-given, via an LLM-as-judge (or a word-overlap heuristic offline). Run with
-`--provider openai --embeddings openai` for numbers that mean something —
-the default fake embeddings are a content-blind hash (see ADR 0003), so
-Phase 1 prints a warning rather than let anyone mistake a fake-mode number
-for retrieval quality. The honest result on this project's own policy
-document and golden cases — recall@6 of 43%, 7/12 specialist analyses
-fully grounded — plus what it points at, is written up in
+given, via an LLM-as-judge (or a word-overlap heuristic offline). **Phase
+3** checks whether that judge itself is calibrated, against a small
+hand-labeled set built from a known judge false positive. **Phase 4**
+deterministically checks — no LLM involved — whether the specific LTV/DTI
+percentages specialists cite match the policy manual's own numeric bands.
+Run with `--provider openai --embeddings openai` for numbers that mean
+something — the default fake embeddings/LLM are a content-blind hash and
+an offline heuristic (see ADR 0003), so Phase 1 prints a warning rather
+than let anyone mistake a fake-mode number for retrieval quality. CI runs
+the whole thing offline as a smoke test (all four phases execute, no API
+key needed); the real run is a manual/periodic check, not a CI gate, for
+the same cost/determinism reasons `evals/run.py --provider openai` is.
+The honest result on this project's own policy document and golden
+cases — retrieval fixed from 43% to 100% after a chunking bug, but
+groundedness at 25% because the judge is strict about wording rather than
+finding actual numeric errors (citation accuracy finds zero) — plus what
+each finding points at, is written up in
 [ADR 0007](docs/adr/0007-rag-evaluation.md).
 
 ## MCP server

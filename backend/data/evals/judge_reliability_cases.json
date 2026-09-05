@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "id": "ltv-86-in-band",
+      "context": "LTV of 80% or below qualifies for standard pricing with no mortgage insurance requirement under most conventional programs. LTV between 80% and 90% is acceptable with mortgage insurance. LTV between 90% and 97% requires additional compensating factors (credit score, reserves) and is the maximum for most standard first-lien conventional products. LTV above 97% is not eligible under standard guidelines.",
+      "claim": "LTV of 86.08% requires mortgage insurance.",
+      "expected_grounded": true,
+      "note": "The exact false positive documented in docs/adr/0007-rag-evaluation.md: 86.08% is arithmetically inside the stated 80-90% band, but a prior judge run scored this unsupported because '86.08' never appears verbatim in the context."
+    },
+    {
+      "id": "dti-47-compensating-factors",
+      "context": "The standard maximum DTI is 43%. DTI between 43% and 50% requires compensating factors (e.g. strong reserves, low LTV, high credit score) to be documented as a condition. DTI above 50% is generally not eligible without an automated underwriting system approval that explicitly permits the exception.",
+      "claim": "The applicant's DTI of 47% requires compensating factors to be documented before approval.",
+      "expected_grounded": true,
+      "note": "Case-specific number (47%) combined with a correct policy inference from the stated 43-50% band — should not be penalized for citing case data, per groundedness.py's own judge prompt."
+    },
+    {
+      "id": "credit-score-wrong-threshold",
+      "context": "The minimum credit score for a conventional loan is 620. Applicants below 620 do not meet conventional loan requirements and should be evaluated for alternative loan products or declined. Scores of 740 and above qualify for the best available pricing tier.",
+      "claim": "Applicants with a credit score below 650 are automatically declined regardless of compensating factors.",
+      "expected_grounded": false,
+      "note": "Cites a threshold (650) the policy never states — the actual minimum is 620. A real over-claim, not a false positive."
+    },
+    {
+      "id": "cross-section-contamination",
+      "context": "LTV of 80% or below qualifies for standard pricing with no mortgage insurance requirement under most conventional programs. LTV between 80% and 90% is acceptable with mortgage insurance.",
+      "claim": "This loan requires two years of tax returns because the borrower is self-employed.",
+      "expected_grounded": false,
+      "note": "Self-employment/tax-return content is from section 2.3, not present in this (LTV-only) context — the failure mode the pre-chunking-fix retriever produced by mislabeling chunks."
+    },
+    {
+      "id": "reserves-boundary-exact-minimum",
+      "context": "A minimum of 2 months of PITI (principal, interest, taxes, insurance) in post-closing liquid reserves is required for primary residences under standard guidelines. Investment properties and higher-LTV loans may require up to 6 months; that threshold is outside the scope of this manual's baseline case but should be flagged for underwriter judgment.",
+      "claim": "The applicant has exactly 2.0 months of reserves, meeting the minimum post-closing reserve requirement for a primary residence.",
+      "expected_grounded": true,
+      "note": "Boundary case: 2.0 months meets a '>= 2 months' requirement exactly. Tests whether the judge treats an at-threshold value as satisfying the rule."
+    },
+    {
+      "id": "bankruptcy-overgeneralized-condition",
+      "context": "A Chapter 7 bankruptcy requires 4 years from the discharge date before an applicant is eligible, absent documented extenuating circumstances (2 years with extenuating circumstances). A foreclosure requires 7 years from the completion date (3 years with extenuating circumstances and additional restrictions).",
+      "claim": "A Chapter 7 bankruptcy requires only 2 years from discharge in all cases.",
+      "expected_grounded": false,
+      "note": "Drops the 'absent documented extenuating circumstances' condition the policy attaches to the 2-year figure — a real overgeneralization, not case-specific data."
+    }
+  ]
+}

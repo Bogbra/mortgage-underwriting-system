@@ -38,6 +38,15 @@ jobs:
       - name: Golden-case decision evals (offline fake model)
         run: uv run python -m underwriting.evals.run
 
+      - name: RAG eval smoke test (offline fake model + embeddings)
+        # Proves the harness runs end to end (all 4 phases) with no API
+        # key. Not a quality gate — fake embeddings/LLM produce numbers
+        # that aren't meaningful, see rag_eval.py's own warnings. Real
+        # retrieval/groundedness numbers need --provider openai
+        # --embeddings openai, which costs money and isn't deterministic
+        # enough to gate CI on — see docs/adr/0007-rag-evaluation.md.
+        run: uv run python -m underwriting.evals.rag_eval
+
   frontend:
     name: Frontend (typecheck, lint, build)
     runs-on: ubuntu-latest

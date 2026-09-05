@@ -15,9 +15,13 @@ math without reimplementing it.
 `mcp_server.py` wraps the same functions `agents/*.py` calls in-process —
 not a reimplementation, the identical `domain/calculations` functions —
 behind the [Model Context Protocol](https://modelcontextprotocol.io)
-using the official `mcp` SDK's `MCPServer`. Nine tools: the seven
-deterministic calculators, plus `retrieve_underwriting_policy` wrapping
-`PolicyStore.retrieve()`. Each tool returns `.model_dump()` of the same
+using the official `mcp` SDK's `MCPServer`. Nine tools: the eight
+deterministic calculators (`calculate_dti_ratio`, `calculate_ltv_ratio`,
+`calculate_down_payment_adequacy`, `calculate_reserves`,
+`calculate_housing_expense_ratio`, `check_credit_score_policy`,
+`find_large_deposits`, `calculate_total_debt_obligations`), plus
+`retrieve_underwriting_policy` wrapping `PolicyStore.retrieve()`. Each tool
+returns `.model_dump()` of the same
 Pydantic result model the LangGraph agents use — one calculation, one
 result shape, two transports (a direct Python call inside the graph, or
 an MCP `tools/call` from anywhere else).
